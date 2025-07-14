@@ -300,7 +300,7 @@ function App() {
           <Grid item size={{ xs: 12, sm: 12 }}>
             <Typography variant="h6" fontStyle={"italic"}>
               注意：請用繁體中字輸入所有中文。<br/>
-              NOTE: For all Chinese input, please use Traditionl Chinese.
+              NOTE: For all Chinese input, please use Traditional Chinese.
             </Typography>
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
