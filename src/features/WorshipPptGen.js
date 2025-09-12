@@ -2,7 +2,7 @@ import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import { Converter } from "opencc-js";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, Grid, Link, FormLabel, RadioGroup, FormControlLabel, Radio, Tooltip, IconButton, Alert } from "@mui/material";
-import { backgrounds, chtFontFace, chsFontFace, enFontFace, footerFontSize, blankLineHeight, lyricsFontSizeEnSec, lyricsFontSizeEnPri, lyricsFontSizeChSec, lyricsFontSizeChPri, coverFontSizeEnPri, coverFontSizeChPri, coverFontSizeEnSec, coverFontSizeChSec } from "../constants";
+import { backgrounds, chtFontFace, chsFontFace, enFontFace, footerFontSize, blankLineHeight, lyricsFontSizeEnSec, lyricsFontSizeEnPri, lyricsFontSizeChSec, lyricsFontSizeChPri, coverFontSizeEnPri, coverFontSizeChPri, coverFontSizeEnSec, coverFontSizeChSec, lyricsFontSizeChPriSmaller, lyricsFontSizeChPriSmallest, lyricsFontSizeEnPriSmaller, lyricsFontSizeEnPriSmallest, lyricsFontSizeEnSecSmallest, lyricsFontSizeEnSecSmaller, lyricsFontSizeChSecSmallest } from "../constants";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const t2sConverter = Converter({ from: "tw", to: "cn" });
@@ -13,14 +13,17 @@ function cleanChineseLine(line) {
   // const punctuation = /[，。！？：；「」『』（）—…、《》【】〈〉·!?,.:;"'()\[\]{}\-]/g;
   const punctuation = /[，。：；（）—…、《》【】〈〉·,.:;"'()\[\]{}\-]/g;
 
-  return line.replace(punctuation, (match, offset, str) => {
-    const isEnd = offset === str.length - 1;
-    return isEnd ? "" : "   "; // remove at end, replace with 3 spaces elsewhere
-  }).replace(/\s+/g, "   ");
+  return line !== undefined ?
+    line.replace(punctuation, (offset, str) => {
+      const isEnd = offset === str.length - 1;
+      return isEnd ? "" : "   "; // remove at end, replace with 3 spaces elsewhere
+    }).replace(/\s+/g, "   ")
+    :
+    "";
 }
 
 function cleanEnglishLine(line) {
-  return line.replace(/[.,?;:]+$/, "");
+  return line !== undefined ? line.replace(/[.,?;:]+$/, "") : "";
 }
 
 function WorshipPptGen() {
@@ -38,6 +41,8 @@ function WorshipPptGen() {
   const [errorMsg, setErrorMsg] = useState("");
   const [infoOpen, setInfoOpen] = useState(false);
   const [whatsNew, setWhatsNew] = useState(false);
+  const [chFontSizeScale, setChFontSizeScale] = useState("standard");
+  const [enFontSizeScale, setEnFontSizeScale] = useState("standard");
   const [simpChInputWarning, setSimpChInputWarning] = useState(false);
 
   // pass in 1 for primary, otherwise secondary
@@ -65,9 +70,29 @@ function WorshipPptGen() {
   }
   function getLyricsFontSize(lineNo) {
     return primaryLang === 'ch' ?
-      (lineNo == 1 ? lyricsFontSizeChPri : lyricsFontSizeEnSec)
+      (lineNo == 1 ? getLyricsFontSizeChPri() : getLyricsFontSizeEnSec())
       :
-      (lineNo == 1 ? lyricsFontSizeEnPri : lyricsFontSizeChSec);
+      (lineNo == 1 ? getLyricsFontSizeEnPri() : getLyricsFontSizeChSec());
+  }
+  function getLyricsFontSizeChPri() {
+    if (chFontSizeScale === 'smaller') return lyricsFontSizeChPriSmaller;
+    else if (chFontSizeScale === 'smallest') return lyricsFontSizeChPriSmallest;
+    else return lyricsFontSizeChPri;
+  }
+  function getLyricsFontSizeChSec() {
+    if (chFontSizeScale === 'smaller') return lyricsFontSizeChSecSmaller;
+    else if (chFontSizeScale === 'smallest') return lyricsFontSizeChSecSmallest;
+    else return lyricsFontSizeChSec;
+  }
+  function getLyricsFontSizeEnPri() {
+    if (enFontSizeScale === 'smaller') return lyricsFontSizeEnPriSmaller;
+    else if (enFontSizeScale === 'smallest') return lyricsFontSizeEnPriSmallest;
+    else return lyricsFontSizeEnPri;
+  }
+  function getLyricsFontSizeEnSec() {
+    if (enFontSizeScale === 'smaller') return lyricsFontSizeEnSecSmaller;
+    else if (enFontSizeScale === 'smallest') return lyricsFontSizeEnSecSmallest;
+    else return lyricsFontSizeEnSec;
   }
   function getFontFace(primSec) {
     return isPrmLangCh(primSec) ? 'chFontFace' : 'enFontFace';
@@ -107,6 +132,7 @@ function WorshipPptGen() {
       cleanEnglishLine(lyricsLine);
   }
   function detectSimplifiedChineseInput(input) {
+    if (input === undefined) return true;
     // Detect Simplified Chinese by comparing with converted version
     var converted = s2tConverter(input);
      return input !== converted;
@@ -194,8 +220,8 @@ function WorshipPptGen() {
       // Build lyrics block
       const textBlocks = [];
       for (let i = 0; i < priLines.length; i++) {
-        const priLyricsLine = getLyricsLine(lang, 1, priLines[i]);
-        const secLyricsLine = getLyricsLine(lang, 2, secLines[i]);
+        const priLyricsLine = getLyricsLine(lang, 1, priLines[i] ?? '');
+        const secLyricsLine = getLyricsLine(lang, 2, secLines[i] ?? '');
         // add primary lyrics
         textBlocks.push(
           {
@@ -301,6 +327,14 @@ function WorshipPptGen() {
     swapContents();
   };
 
+  const handleChFontSizeScaleChange = (event) => {
+    setChFontSizeScale(event.target.value);
+  };
+
+  const handleEnFontSizeScaleChange = (event) => {
+    setEnFontSizeScale(event.target.value);
+  };
+
   return (
     <div>
       <Dialog open={errorOpen} onClose={() => setErrorOpen(false)}>
@@ -354,7 +388,8 @@ function WorshipPptGen() {
               v1.1 (9/12/2025)
               <ul>
                 <li><b>Add support for primary language toggle between Chinese and English:</b> you can now enter English lyrics as the primary language, where the English lyrics will first show up on the top of a lyrics line set.</li>
-                <li><b>Support Simplified Chinese input:</b> the system will automatically detect Simplified Chinese input and try to convert it back to Traditional Chinese when generating such slides, although the conversion is not 100% since multiple Traditional Chinese characters can be mapped to a single Simplified Chinese character. As a result, it's still recommended to use Traditional Chinese for inputting all Chinese characters; the system will display a small warning banner if Simplified Chinese input is detected. </li>
+                <li><b>Support Simplified Chinese input:</b> the system will automatically detect Simplified Chinese input and try to convert it back to Traditional Chinese when generating such slides, although the conversion is not 100% since multiple Traditional Chinese characters can be mapped to a single Simplified Chinese character. As a result, it's still recommended to use Traditional Chinese for inputting all Chinese characters; the system will display a small warning banner if Simplified Chinese input is detected.</li>
+                <li><b>Support adjustable lyrics font size:</b> both Chinese and English fonts can be independently adjusted to Standard, Smaller or Smallest font size to reduce line wrapping due to long sentences.</li>
                 <li><b>Development updates:</b> performed some code cleanup and refactoring.</li>
               </ul>
               v1.0 (7/12/2025)
@@ -409,33 +444,33 @@ function WorshipPptGen() {
                 mt: 2
               }}
             >
-            <FormControl component="fieldset">
-              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <FormLabel component="legend">主唱語言 Primary Language</FormLabel>
-                <Tooltip title="Determines which is the main language that appears on the top of each lyrics line group.">
-                  <IconButton size="small" sx={{ p: 0.2 }}>
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-              <RadioGroup
-                row
-                name="primary-language"
-                value={primaryLang}
-                onChange={handleLangChange}
-              >
-                <FormControlLabel
-                    value="ch"
-                    control={<Radio />}
-                    label="Chinese"
-                />
-                <FormControlLabel
-                    value="en"
-                    control={<Radio />}
-                    label="English"
-                />
-              </RadioGroup>
-            </FormControl>
+              <FormControl component="fieldset">
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <FormLabel component="legend">主唱語言 Primary Language</FormLabel>
+                  <Tooltip title="Determines which is the main language that appears on the top of each lyrics line group.">
+                    <IconButton size="small" sx={{ p: 0.2 }}>
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+                <RadioGroup
+                  row
+                  name="primary-language"
+                  value={primaryLang}
+                  onChange={handleLangChange}
+                >
+                  <FormControlLabel
+                      value="ch"
+                      control={<Radio />}
+                      label="Chinese"
+                  />
+                  <FormControlLabel
+                      value="en"
+                      control={<Radio />}
+                      label="English"
+                  />
+                </RadioGroup>
+              </FormControl>
             </Box>
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
@@ -507,6 +542,34 @@ function WorshipPptGen() {
               value={lyricsSec}
               onChange={(e) => setLyricsSec(e.target.value)}
             />
+          </Grid>
+          <Grid item size={{ xs: 12, sm: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel id="font-size-label">{getLang(1)} Font Size</InputLabel>
+              <Select
+                labelId="font-size-label"
+                value={primaryLang === 'ch' ? chFontSizeScale : enFontSizeScale}
+                onChange={primaryLang === 'ch' ? handleChFontSizeScaleChange : handleEnFontSizeScaleChange}
+              >
+                <MenuItem value="standard">Standard</MenuItem>
+                <MenuItem value="smaller">Smaller</MenuItem>
+                <MenuItem value="smallest">Smallest</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item size={{ xs: 12, sm: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel id="font-size-label">{getLang(2)} Font Size</InputLabel>
+              <Select
+                labelId="font-size-label"
+                value={primaryLang !== 'ch' ? chFontSizeScale : enFontSizeScale}
+                onChange={primaryLang !== 'ch' ? handleChFontSizeScaleChange : handleEnFontSizeScaleChange}
+              >
+                <MenuItem value="standard">Standard</MenuItem>
+                <MenuItem value="smaller">Smaller</MenuItem>
+                <MenuItem value="smallest">Smallest</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item size={{ xs: 12, sm: 12 }}>
             <FormControl fullWidth margin="normal">
