@@ -371,7 +371,7 @@ function WorshipPptGen() {
               NOTE:
               <ul>
                 <li>This tool is designed to generate PowerPoint slides file for <b>one song at a time;</b> once you've generate all your individual slides files, you should make the corresponding updates and assemble them into a single PowerPoint file.</li>
-                <li>This slide generator is currently only intended for generating lyrics slides, but <b>not for Bible scripture slidses</b>. Please use your existing scripture slide templates to prepare them, if you need to insert them into your worship set.</li>
+                <li>This slide generator is currently only intended for generating lyrics slides, but <b>not for Bible scripture slides</b>. Please use your existing scripture slide templates to prepare them, if you need to insert them into your worship set.</li>
               </ul>
             </Typography>
           </Box>
