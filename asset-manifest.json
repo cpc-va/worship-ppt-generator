@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/worship-ppt-generator/static/css/main.a0f48a3c.css",
-    "main.js": "/worship-ppt-generator/static/js/main.c6399401.js",
+    "main.js": "/worship-ppt-generator/static/js/main.4052fc1d.js",
     "index.html": "/worship-ppt-generator/index.html",
     "main.a0f48a3c.css.map": "/worship-ppt-generator/static/css/main.a0f48a3c.css.map",
-    "main.c6399401.js.map": "/worship-ppt-generator/static/js/main.c6399401.js.map"
+    "main.4052fc1d.js.map": "/worship-ppt-generator/static/js/main.4052fc1d.js.map"
   },
   "entrypoints": [
     "static/css/main.a0f48a3c.css",
-    "static/js/main.c6399401.js"
+    "static/js/main.4052fc1d.js"
   ]
 }
