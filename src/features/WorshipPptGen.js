@@ -387,7 +387,7 @@ function WorshipPptGen() {
             <Typography>
               v1.1 (9/12/2025)
               <ul>
-                <li><b>Add support for primary language toggle between Chinese and English:</b> you can now enter English lyrics as the primary language, where the English lyrics will first show up on the top of a lyrics line set.</li>
+                <li><b>Add support for primary language toggle between Chinese and English:</b> you can now enter English lyrics as the primary language, where the English lyrics will first show up on the top of a lyrics line block.</li>
                 <li><b>Support Simplified Chinese input:</b> the system will automatically detect Simplified Chinese input and try to convert it back to Traditional Chinese when generating such slides, although the conversion is not 100% since multiple Traditional Chinese characters can be mapped to a single Simplified Chinese character. As a result, it's still recommended to use Traditional Chinese for inputting all Chinese characters; the system will display a small warning banner if Simplified Chinese input is detected.</li>
                 <li><b>Support adjustable lyrics font size:</b> both Chinese and English fonts can be independently adjusted to Standard, Smaller or Smallest font size to reduce line wrapping due to long sentences.</li>
                 <li><b>Development updates:</b> performed some code cleanup and refactoring.</li>
