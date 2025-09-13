@@ -11,6 +11,10 @@ Go to https://cpc-va.github.io/worship-ppt-generator/ , then fill out all the re
 npm install
 npm start
 ```
+### New Features
+- v1.1
+  - Customizable font size scale (standard, small and smallest)
+  - Support English lyrics as primary language
+
 ### TODO Features
-- Customizable font size (and font face)
-- Support English lyrics as primary language
+- Bible scripture slides generator (potentially to be spun off as a separate project)
