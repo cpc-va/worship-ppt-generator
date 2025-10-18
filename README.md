@@ -12,6 +12,8 @@ npm install
 npm start
 ```
 ### New Features
+- v1.1.1
+  - Fix character correction issues for Traditional Chinese slides (i.e. 祢 was incorrectly converted to 禰)
 - v1.1
   - Customizable font size scale (standard, small and smallest)
   - Support English lyrics as primary language

@@ -123,7 +123,7 @@ function WorshipPptGen() {
       'Verse line 1\nVerse line 2\nVerse line 3\nVerse line 4\n\nPre-Chorus line 1\nPre-Chorus line 2\n\nChorus line 1\nChorus line 2\nChorus line 3\nChorus line 4\n\nBridge line 1\nBridge line 2';
   }
   function getConvertedLine(downloadLang, line) {
-    return isSimplified(downloadLang) ? t2sConverter(line) : (detectSimplifiedChineseInput(line) ? s2tConverter(line) : line);
+    return isSimplified(downloadLang) ? t2sConverter(line) : (detectSimplifiedChineseInput(line) ? convertS2T(line) : line);
   }
   function getLyricsLine(downloadLang, primSec, lyricsLine) {
     return isPrmLangCh(primSec) ?
@@ -134,8 +134,14 @@ function WorshipPptGen() {
   function detectSimplifiedChineseInput(input) {
     if (input === undefined) return true;
     // Detect Simplified Chinese by comparing with converted version
+    var converted = convertS2T(input);
+    return input !== converted;
+  }
+
+  function convertS2T(input) {
     var converted = s2tConverter(input);
-     return input !== converted;
+    // apply corrections to certain characters that are mistakenly converted when running s2tConverter
+    return converted.replaceAll('禰','祢');
   }
 
   const generatePPT = async (lang) => {
@@ -385,6 +391,10 @@ function WorshipPptGen() {
         <DialogContent dividers>
           <Box display="flex" flexDirection="column" gap={2}>
             <Typography>
+              v1.1.1 (10/18/2025)
+              <ul>
+                <li><b>Bug Fix:</b> correct an issue where certain Chinese characters got incorrectly converted to other characters (i.e. 祢 → 禰) when generating Traditional Chinese slides.</li>
+              </ul>
               v1.1 (9/12/2025)
               <ul>
                 <li><b>Add support for primary language toggle between Chinese and English:</b> you can now enter English lyrics as the primary language, where the English lyrics will first show up on the top of a lyrics line block.</li>
@@ -624,8 +634,8 @@ function WorshipPptGen() {
           <Grid item size={{ xs: 12, sm: 12 }}>
             <Typography variant="body2" align="right">
               Developed by Wah for CPC<br/>
-              Last updated: 2025-09-12<br/>
-              v1.1
+              Last updated: 2025-10-18<br/>
+              v1.1.1
             </Typography>
           </Grid>
         </Grid>
