@@ -3,6 +3,7 @@
 Support the generation of bilingual worship slides in Traditional and Simplified Chinese; also support English as secondary lyrics.
 
 ## Usage (End-user)
+
 Go to https://cpc-va.github.io/worship-ppt-generator/ , then fill out all the required fields.
 
 ## Setup (Development)
@@ -11,7 +12,11 @@ Go to https://cpc-va.github.io/worship-ppt-generator/ , then fill out all the re
 npm install
 npm start
 ```
+
 ### New Features
+
+- v1.2
+  - Added Standing Mode: restricts lyrics to the upper two-thirds of the slide and automatically splits lyric blocks with 4 or more lines into multiple slides of at most 3 lines.
 - v1.1.1
   - Fix character correction issues for Traditional Chinese slides (i.e. 祢 was incorrectly converted to 禰)
 - v1.1
@@ -19,4 +24,5 @@ npm start
   - Support English lyrics as primary language
 
 ### TODO Features
+
 - Bible scripture slides generator (potentially to be spun off as a separate project)

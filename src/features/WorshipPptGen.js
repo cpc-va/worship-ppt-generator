@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import { Converter } from "opencc-js";
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, Grid, Link, FormLabel, RadioGroup, FormControlLabel, Radio, Tooltip, IconButton, Alert } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, Grid, Link, FormLabel, RadioGroup, FormControlLabel, Radio, Tooltip, IconButton, Alert, Checkbox } from "@mui/material";
 import { backgrounds, chtFontFace, chsFontFace, enFontFace, footerFontSize, blankLineHeight, lyricsFontSizeEnSec, lyricsFontSizeEnPri, lyricsFontSizeChSec, lyricsFontSizeChPri, coverFontSizeEnPri, coverFontSizeChPri, coverFontSizeEnSec, coverFontSizeChSec, lyricsFontSizeChPriSmaller, lyricsFontSizeChPriSmallest, lyricsFontSizeEnPriSmaller, lyricsFontSizeEnPriSmallest, lyricsFontSizeEnSecSmallest, lyricsFontSizeEnSecSmaller, lyricsFontSizeChSecSmallest } from "../constants";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
@@ -26,9 +26,21 @@ function cleanEnglishLine(line) {
   return line !== undefined ? line.replace(/[.,?;:]+$/, "") : "";
 }
 
+function getChunkSizes(total, maxLines = 3) {
+  const k = Math.ceil(total / maxLines);
+  const base = Math.floor(total / k);
+  const remainder = total % k;
+  const sizes = [];
+  for (let i = 0; i < k; i++) {
+    sizes.push(i < remainder ? base + 1 : base);
+  }
+  return sizes;
+}
+
 function WorshipPptGen() {
     
   const [primaryLang, setPrimaryLang] = useState("ch");
+  const [standingMode, setStandingMode] = useState(false);
   const [songTitlePri, setSongTitlePri] = useState("");
   const [songTitleSec, setSongTitleSec] = useState("");
   const [credits, setCredits] = useState("");
@@ -208,21 +220,41 @@ function WorshipPptGen() {
     // prepare to add lyrics slides
     const blocksPri = lyricsPri.trim().split(/\n\s*\n/); // blocks separated by double newlines
     const blocksSec = hasLyricsSec ? lyricsSec.trim().split(/\n\s*\n/) : [];
-    let blockIndex = 0;
+
+    const slidesToGenerate = [];
+
     for (let blockIndex = 0; blockIndex < blocksPri.length; blockIndex++) {
-      // add new slide and set background
-      const slide = pptx.addSlide();
-      slide.color = fontColor;
-      slide.background = { path: window.location.origin + bgImage };
-      // check each block to make sure the # of lines between Chinese and English lyrics matches
       const priLines = blocksPri[blockIndex].trim().split(/\r?\n/).map((l) => l.trim());
-      const secLines = hasLyricsSec ? blocksSec[blockIndex].trim().split(/\r?\n/).map((l) => l.trim()) : [];
+      const secLines = hasLyricsSec && blocksSec[blockIndex] ? blocksSec[blockIndex].trim().split(/\r?\n/).map((l) => l.trim()) : [];
+      
       // Validate line count
       if (hasLyricsSec && priLines.length !== secLines.length) {
         setErrorMsg("The number of " + getLang(1) + " and " + getLang(2) + " lyric lines must be the same.");
         setErrorOpen(true);
         return;
       }
+
+      if (standingMode) {
+        const sizes = getChunkSizes(priLines.length, 3);
+        let currentIndex = 0;
+        for (const size of sizes) {
+          const subPri = priLines.slice(currentIndex, currentIndex + size);
+          const subSec = hasLyricsSec ? secLines.slice(currentIndex, currentIndex + size) : [];
+          slidesToGenerate.push({ priLines: subPri, secLines: subSec });
+          currentIndex += size;
+        }
+      } else {
+        slidesToGenerate.push({ priLines, secLines });
+      }
+    }
+
+    for (let slideIndex = 0; slideIndex < slidesToGenerate.length; slideIndex++) {
+      const { priLines, secLines } = slidesToGenerate[slideIndex];
+      // add new slide and set background
+      const slide = pptx.addSlide();
+      slide.color = fontColor;
+      slide.background = { path: window.location.origin + bgImage };
+
       // Build lyrics block
       const textBlocks = [];
       for (let i = 0; i < priLines.length; i++) {
@@ -270,7 +302,14 @@ function WorshipPptGen() {
       }
 
       // Add lyrics text
-      slide.addText(textBlocks, { x: 0.25, y: 0.4, w: "95%", h: 4.75, align: "center"});
+      slide.addText(textBlocks, {
+        x: 0.25,
+        y: 0.4,
+        w: "95%",
+        h: standingMode ? 3.35 : 4.75,
+        align: "center",
+        valign: "middle"
+      });
 
       // Add footer (song name, credits)
       const footerTextBlocks = [];
@@ -309,9 +348,14 @@ function WorshipPptGen() {
         );
       }
     }
-    const suffix = isSimplified(lang) ? "簡" : "繁";
-    const songFileName = hasSongTitlePri ? songTitlePri + " " + songTitleSec : songTitleSec;
-    await pptx.writeFile(`${songFileName} (${suffix}).pptx`);
+    const isEnglishOnly = primaryLang === 'en' && !lyricsSec.trim();
+    const songFileName = hasSongTitlePri ? (hasSongTitleSec ? songTitlePri + " " + songTitleSec : songTitlePri) : songTitleSec;
+    if (isEnglishOnly) {
+      await pptx.writeFile(`${songFileName.trim()}.pptx`);
+    } else {
+      const suffix = isSimplified(lang) ? "簡" : "繁";
+      await pptx.writeFile(`${songFileName.trim()} (${suffix}).pptx`);
+    }
   };
 
   function swapContents() {
@@ -391,6 +435,10 @@ function WorshipPptGen() {
         <DialogContent dividers>
           <Box display="flex" flexDirection="column" gap={2}>
             <Typography>
+              v1.2 (05/28/2026)
+              <ul>
+                <li><b>Standing Mode:</b> Added support for standing mode which only uses the top 2/3 of the slide for lyrics (so congregants standing in front do not block lyrics). It also automatically splits lyric blocks with 4 or more lines into multiple slides of at most 3 lines.</li>
+              </ul>
               v1.1.1 (10/18/2025)
               <ul>
                 <li><b>Bug Fix:</b> correct an issue where certain Chinese characters got incorrectly converted to other characters (i.e. 祢 → 禰) when generating Traditional Chinese slides.</li>
@@ -445,13 +493,15 @@ function WorshipPptGen() {
               NOTE: It's recommended to use Traditional Chinese for all Chinese-character input to avoid potential conversion problems.
             </Typography>
           </Grid>
-          <Grid size={{ xs: 12, sm: 12}}>
+          <Grid item size={{ xs: 12, sm: 6 }}>
             <Box
               sx={{
                 border: "1px solid #ccc",
                 borderRadius: 2,
                 p: 2,
-                mt: 2
+                mt: 2,
+                height: "100%",
+                boxSizing: "border-box"
               }}
             >
               <FormControl component="fieldset">
@@ -480,6 +530,40 @@ function WorshipPptGen() {
                       label="English"
                   />
                 </RadioGroup>
+              </FormControl>
+            </Box>
+          </Grid>
+          <Grid item size={{ xs: 12, sm: 6 }}>
+            <Box
+              sx={{
+                border: "1px solid #ccc",
+                borderRadius: 2,
+                p: 2,
+                mt: 2,
+                height: "100%",
+                boxSizing: "border-box"
+              }}
+            >
+              <FormControl component="fieldset">
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <FormLabel component="legend">站立模式 Standing Mode</FormLabel>
+                  <Tooltip title="Standing Mode restricts lyrics to the top 2/3 of the slide to prevent lyrics from being blocked by standing congregants. It also limits slides to a maximum of 3 lines, splitting longer lyric blocks automatically.">
+                    <IconButton size="small" sx={{ p: 0.2 }}>
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={standingMode}
+                      onChange={(e) => setStandingMode(e.target.checked)}
+                      name="standing-mode"
+                      color="primary"
+                    />
+                  }
+                  label="Enable Standing Mode (Top 2/3 only & Max 3 lines)"
+                />
               </FormControl>
             </Box>
           </Grid>
@@ -613,29 +697,41 @@ function WorshipPptGen() {
               it is recommended to use Traditional Chinese input to avoid potential conversion problems.
             </Alert>
           )}
-          <Grid item size={{ xs: 12, sm: 12 }}align="center">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => generatePPT("trad")}
-              sx={{ mr: 2 }}
-            >
-              Download PPT (Traditional Chinese)
-            </Button>
+          <Grid item size={{ xs: 12, sm: 12 }} align="center">
+            {primaryLang === 'en' && !lyricsSec.trim() ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => generatePPT("en")}
+              >
+                DOWNLOAD PPT
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => generatePPT("trad")}
+                  sx={{ mr: 2 }}
+                >
+                  Download PPT (Traditional Chinese)
+                </Button>
 
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => generatePPT("simp")}
-            >
-              Download PPT (Simplified Chinese)
-            </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => generatePPT("simp")}
+                >
+                  Download PPT (Simplified Chinese)
+                </Button>
+              </>
+            )}
           </Grid>
           <Grid item size={{ xs: 12, sm: 12 }}>
             <Typography variant="body2" align="right">
               Developed by Wah for CPC<br/>
-              Last updated: 2025-10-18<br/>
-              v1.1.1
+              Last updated: 2026-05-28<br/>
+              v1.2
             </Typography>
           </Grid>
         </Grid>
