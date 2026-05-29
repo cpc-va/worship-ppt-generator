@@ -567,14 +567,28 @@ function WorshipPptGen() {
         <DialogContent dividers>
           <Box display="flex" flexDirection="column" gap={2}>
             <Typography>
-              v1.2 (05/28/2026)
+              v1.2 (05/29/2026)
               <ul>
                 <li>
-                  <b>Standing Mode:</b> Added support for standing mode which
-                  only uses the top 2/3 of the slide for lyrics (so congregants
-                  standing in front do not block lyrics). It also automatically
-                  splits lyric blocks with 4 or more lines into multiple slides
-                  of at most 3 lines.
+                  <b>Standing Mode:</b> added support for standing mode which
+                  only uses the upper two-thirds of the slide for lyrics (so
+                  congregants standing in front do not block lyrics). It also
+                  automatically splits lyric blocks with 4 or more lines into
+                  multiple slides of at most 3 lines.
+                </li>
+                <li>
+                  <b>English-only Mode:</b> if primary language is English and
+                  no Chinese lyrics are provided, the system will generate
+                  English-only slides without any "(繁)" or "(簡)" suffix in the
+                  filename, and a single "DOWNLOAD PPT" button is displayed.
+                  This is to accommodate for songs that only have English lyrics
+                  and avoid unnecessary confusion with multiple versions of the
+                  same song.
+                </li>
+                <li>
+                  <b>Bug Fix:</b> the generated slide now correctly uses font
+                  face "Microsoft JhengHei" for Chinese lyrics and "Arial" for
+                  English lyrics.
                 </li>
               </ul>
               v1.1.1 (10/18/2025)
@@ -644,12 +658,20 @@ function WorshipPptGen() {
           <Button onClick={() => setWhatsNew(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={layoutPreviewOpen} onClose={() => setLayoutPreviewOpen(false)} maxWidth="md" fullWidth>
+      <Dialog
+        open={layoutPreviewOpen}
+        onClose={() => setLayoutPreviewOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Slide Layout Modes</DialogTitle>
         <DialogContent dividers>
           <Box display="flex" justifyContent="center">
             <img
-              src={window.location.origin + "/worship-ppt-generator/img/slide_layout_modes.png"}
+              src={
+                window.location.origin +
+                "/worship-ppt-generator/img/slide_layout_modes.png"
+              }
               alt="Slide Layout Modes Diagram"
               style={{ maxWidth: "100%", height: "auto", borderRadius: 4 }}
             />
@@ -706,7 +728,16 @@ function WorshipPptGen() {
                   <FormLabel component="legend">
                     主唱語言 Primary Language
                   </FormLabel>
-                  <Tooltip title="Determines which is the main language that appears on the top of each lyrics line group.">
+                  <Tooltip
+                    title="Determines which is the main language that appears on the top of each lyrics line group."
+                    slotProps={{
+                      tooltip: {
+                        sx: {
+                          fontSize: "0.9rem",
+                        },
+                      },
+                    }}
+                  >
                     <IconButton size="small" sx={{ p: 0.2 }}>
                       <InfoOutlinedIcon fontSize="small" />
                     </IconButton>
@@ -743,13 +774,27 @@ function WorshipPptGen() {
                 boxSizing: "border-box",
               }}
             >
-              <Box display="flex" alignItems="center" justifyContent="space-between" gap={2}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                gap={2}
+              >
                 <FormControl component="fieldset">
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <FormLabel component="legend">
                       站立模式 Standing Mode
                     </FormLabel>
-                    <Tooltip title="Standing Mode restricts lyrics to be laid out on the upper two-thirds of the slide to prevent lyrics from being blocked by standing congregants. It also limits slides to a maximum of 3 lines, splitting longer lyric blocks automatically.">
+                    <Tooltip
+                      title="Standing Mode restricts lyrics to be laid out on the upper two-thirds of the slide to prevent lyrics from being blocked by standing congregants. It also limits slides to a maximum of 3 lines, splitting longer lyric blocks automatically."
+                      slotProps={{
+                        tooltip: {
+                          sx: {
+                            fontSize: "0.9rem",
+                          },
+                        },
+                      }}
+                    >
                       <IconButton size="small" sx={{ p: 0.2 }}>
                         <InfoOutlinedIcon fontSize="small" />
                       </IconButton>
@@ -764,13 +809,25 @@ function WorshipPptGen() {
                         color="primary"
                       />
                     }
-                    label="Enable Standing Mode (use upper two-thirds only & maximum 3 lines of lyrics per slide)"
+                    label="Enable Standing Mode (click on the image on the right for more details)"
                   />
                 </FormControl>
-                <Tooltip title="Click to view full layout modes explanation">
+                <Tooltip
+                  title="Click to view full layout modes explanation"
+                  slotProps={{
+                    tooltip: {
+                      sx: {
+                        fontSize: "0.9rem",
+                      },
+                    },
+                  }}
+                >
                   <Box
                     component="img"
-                    src={window.location.origin + "/worship-ppt-generator/img/slide_layout_modes.png"}
+                    src={
+                      window.location.origin +
+                      "/worship-ppt-generator/img/slide_layout_modes.png"
+                    }
                     alt="Slide Layout Modes"
                     sx={{
                       width: { xs: 80, sm: 100, md: 120 },
@@ -977,7 +1034,7 @@ function WorshipPptGen() {
             <Typography variant="body2" align="right">
               Developed by Wah for CPC
               <br />
-              Last updated: 2026-05-28
+              Last updated: 2026-05-29
               <br />
               v1.2
             </Typography>
