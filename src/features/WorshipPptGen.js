@@ -886,12 +886,18 @@ function WorshipPptGen() {
             <Typography variant="body1" fontStyle={"italic"}>
               請於下面輸入歌詞。
               <br />
-              NOTE: When both Chinese and English lyrics are provided, the
-              number of lines provided for Chinese lyrics must exactly match the
-              number of lines provided for English lyrics.
+              NOTE: When both {primaryLang === "ch"
+                ? "Chinese"
+                : "English"} and {primaryLang === "ch" ? "English" : "Chinese"}{" "}
+              lyrics are provided, the number of lines provided for{" "}
+              {primaryLang === "ch" ? "English" : "Chinese"} lyrics must exactly
+              match the number of lines provided for{" "}
+              {primaryLang === "ch" ? "Chinese" : "English"} lyrics.
               <br />
-              This is needed to make sure the English lyrics can be properly
-              inserted under each Chinese lyrics line.
+              This is needed to make sure the{" "}
+              {primaryLang === "ch" ? "English" : "Chinese"} lyrics can be
+              properly inserted under each{" "}
+              {primaryLang === "ch" ? "Chinese" : "English"} lyrics line.
             </Typography>
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
