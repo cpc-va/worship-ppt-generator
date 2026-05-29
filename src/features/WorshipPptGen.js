@@ -924,11 +924,12 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <InputLabel id="font-size-label">
+              <InputLabel id="primary-font-size-label">
                 {getLang(1)} Font Size
               </InputLabel>
               <Select
-                labelId="font-size-label"
+                labelId="primary-font-size-label"
+                label={`${getLang(1)} Font Size`}
                 value={primaryLang === "ch" ? chFontSizeScale : enFontSizeScale}
                 onChange={
                   primaryLang === "ch"
@@ -944,11 +945,12 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <InputLabel id="font-size-label">
+              <InputLabel id="secondary-font-size-label">
                 {getLang(2)} Font Size
               </InputLabel>
               <Select
-                labelId="font-size-label"
+                labelId="secondary-font-size-label"
+                label={`${getLang(2)} Font Size`}
                 value={primaryLang !== "ch" ? chFontSizeScale : enFontSizeScale}
                 onChange={
                   primaryLang !== "ch"
