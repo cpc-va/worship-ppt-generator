@@ -1,8 +1,53 @@
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import { Converter } from "opencc-js";
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, Grid, Link, FormLabel, RadioGroup, FormControlLabel, Radio, Tooltip, IconButton, Alert, Checkbox } from "@mui/material";
-import { backgrounds, chtFontFace, chsFontFace, enFontFace, footerFontSize, blankLineHeight, lyricsFontSizeEnSec, lyricsFontSizeEnPri, lyricsFontSizeChSec, lyricsFontSizeChPri, coverFontSizeEnPri, coverFontSizeChPri, coverFontSizeEnSec, coverFontSizeChSec, lyricsFontSizeChPriSmaller, lyricsFontSizeChPriSmallest, lyricsFontSizeEnPriSmaller, lyricsFontSizeEnPriSmallest, lyricsFontSizeEnSecSmallest, lyricsFontSizeEnSecSmaller, lyricsFontSizeChSecSmallest } from "../constants";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  Grid,
+  Link,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Tooltip,
+  IconButton,
+  Alert,
+  Checkbox,
+} from "@mui/material";
+import {
+  backgrounds,
+  chtFontFace,
+  chsFontFace,
+  enFontFace,
+  footerFontSize,
+  blankLineHeight,
+  lyricsFontSizeEnSec,
+  lyricsFontSizeEnPri,
+  lyricsFontSizeChSec,
+  lyricsFontSizeChPri,
+  coverFontSizeEnPri,
+  coverFontSizeChPri,
+  coverFontSizeEnSec,
+  coverFontSizeChSec,
+  lyricsFontSizeChPriSmaller,
+  lyricsFontSizeChPriSmallest,
+  lyricsFontSizeEnPriSmaller,
+  lyricsFontSizeEnPriSmallest,
+  lyricsFontSizeEnSecSmallest,
+  lyricsFontSizeEnSecSmaller,
+  lyricsFontSizeChSecSmallest,
+} from "../constants";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const t2sConverter = Converter({ from: "tw", to: "cn" });
@@ -13,13 +58,14 @@ function cleanChineseLine(line) {
   // const punctuation = /[，。！？：；「」『』（）—…、《》【】〈〉·!?,.:;"'()\[\]{}\-]/g;
   const punctuation = /[，。：；（）—…、《》【】〈〉·,.:;"'()\[\]{}\-]/g;
 
-  return line !== undefined ?
-    line.replace(punctuation, (offset, str) => {
-      const isEnd = offset === str.length - 1;
-      return isEnd ? "" : "   "; // remove at end, replace with 3 spaces elsewhere
-    }).replace(/\s+/g, "   ")
-    :
-    "";
+  return line !== undefined
+    ? line
+        .replace(punctuation, (offset, str) => {
+          const isEnd = offset === str.length - 1;
+          return isEnd ? "" : "   "; // remove at end, replace with 3 spaces elsewhere
+        })
+        .replace(/\s+/g, "   ")
+    : "";
 }
 
 function cleanEnglishLine(line) {
@@ -38,7 +84,6 @@ function getChunkSizes(total, maxLines = 3) {
 }
 
 function WorshipPptGen() {
-    
   const [primaryLang, setPrimaryLang] = useState("ch");
   const [standingMode, setStandingMode] = useState(false);
   const [songTitlePri, setSongTitlePri] = useState("");
@@ -53,95 +98,116 @@ function WorshipPptGen() {
   const [errorMsg, setErrorMsg] = useState("");
   const [infoOpen, setInfoOpen] = useState(false);
   const [whatsNew, setWhatsNew] = useState(false);
+  const [layoutPreviewOpen, setLayoutPreviewOpen] = useState(false);
   const [chFontSizeScale, setChFontSizeScale] = useState("standard");
   const [enFontSizeScale, setEnFontSizeScale] = useState("standard");
   const [simpChInputWarning, setSimpChInputWarning] = useState(false);
 
   // pass in 1 for primary, otherwise secondary
   function isPrmLangCh(primSec) {
-    if (primSec == 1) return primaryLang === 'ch';
-    return primaryLang !== 'ch';
+    if (primSec == 1) return primaryLang === "ch";
+    return primaryLang !== "ch";
   }
   function isSimplified(downloadLang) {
-    return downloadLang === 'simp';
+    return downloadLang === "simp";
   }
   function getLang(primSec) {
-    return isPrmLangCh(primSec) ? 'Chinese' : 'English';
+    return isPrmLangCh(primSec) ? "Chinese" : "English";
   }
   function getSongTitleText(downloadLang, lineNo) {
-    return primaryLang === 'ch' ?
-      (lineNo == 1 ? getConvertedLine(downloadLang, songTitlePri.trim()) : songTitleSec.trim())
-      :
-      (lineNo == 1 ? songTitlePri.trim() : getConvertedLine(downloadLang, songTitleSec.trim()));
+    return primaryLang === "ch"
+      ? lineNo == 1
+        ? getConvertedLine(downloadLang, songTitlePri.trim())
+        : songTitleSec.trim()
+      : lineNo == 1
+        ? songTitlePri.trim()
+        : getConvertedLine(downloadLang, songTitleSec.trim());
   }
   function getCoverFontSize(lineNo) {
-    return primaryLang === 'ch' ?
-      (lineNo == 1 ? coverFontSizeChPri : coverFontSizeEnSec)
-      :
-      (lineNo == 1 ? coverFontSizeEnPri : coverFontSizeChSec);
+    return primaryLang === "ch"
+      ? lineNo == 1
+        ? coverFontSizeChPri
+        : coverFontSizeEnSec
+      : lineNo == 1
+        ? coverFontSizeEnPri
+        : coverFontSizeChSec;
   }
   function getLyricsFontSize(lineNo) {
-    return primaryLang === 'ch' ?
-      (lineNo == 1 ? getLyricsFontSizeChPri() : getLyricsFontSizeEnSec())
-      :
-      (lineNo == 1 ? getLyricsFontSizeEnPri() : getLyricsFontSizeChSec());
+    return primaryLang === "ch"
+      ? lineNo == 1
+        ? getLyricsFontSizeChPri()
+        : getLyricsFontSizeEnSec()
+      : lineNo == 1
+        ? getLyricsFontSizeEnPri()
+        : getLyricsFontSizeChSec();
   }
   function getLyricsFontSizeChPri() {
-    if (chFontSizeScale === 'smaller') return lyricsFontSizeChPriSmaller;
-    else if (chFontSizeScale === 'smallest') return lyricsFontSizeChPriSmallest;
+    if (chFontSizeScale === "smaller") return lyricsFontSizeChPriSmaller;
+    else if (chFontSizeScale === "smallest") return lyricsFontSizeChPriSmallest;
     else return lyricsFontSizeChPri;
   }
   function getLyricsFontSizeChSec() {
-    if (chFontSizeScale === 'smaller') return lyricsFontSizeChSecSmaller;
-    else if (chFontSizeScale === 'smallest') return lyricsFontSizeChSecSmallest;
+    if (chFontSizeScale === "smaller") return lyricsFontSizeChSecSmaller;
+    else if (chFontSizeScale === "smallest") return lyricsFontSizeChSecSmallest;
     else return lyricsFontSizeChSec;
   }
   function getLyricsFontSizeEnPri() {
-    if (enFontSizeScale === 'smaller') return lyricsFontSizeEnPriSmaller;
-    else if (enFontSizeScale === 'smallest') return lyricsFontSizeEnPriSmallest;
+    if (enFontSizeScale === "smaller") return lyricsFontSizeEnPriSmaller;
+    else if (enFontSizeScale === "smallest") return lyricsFontSizeEnPriSmallest;
     else return lyricsFontSizeEnPri;
   }
   function getLyricsFontSizeEnSec() {
-    if (enFontSizeScale === 'smaller') return lyricsFontSizeEnSecSmaller;
-    else if (enFontSizeScale === 'smallest') return lyricsFontSizeEnSecSmallest;
+    if (enFontSizeScale === "smaller") return lyricsFontSizeEnSecSmaller;
+    else if (enFontSizeScale === "smallest") return lyricsFontSizeEnSecSmallest;
     else return lyricsFontSizeEnSec;
   }
   function getFontFace(primSec) {
-    return isPrmLangCh(primSec) ? 'chFontFace' : 'enFontFace';
+    return isPrmLangCh(primSec) ? chtFontFace : enFontFace;
   }
   function getSongLabel(primSec) {
-    return isPrmLangCh(primSec) ? '歌名 (中文)' : 'Song Title (English)';
+    return isPrmLangCh(primSec) ? "歌名 (中文)" : "Song Title (English)";
   }
   function getSongLabelSecHelpText() {
     return "Leave blank if there is no " + getLang(2) + " title";
   }
   function getPlaceHolder(primSec) {
-    return isPrmLangCh(primSec) === 'ch' ? 'i.e. 祢真偉大' : 'i.e. How Great Thou Art';
+    return isPrmLangCh(primSec) === "ch"
+      ? "i.e. 祢真偉大"
+      : "i.e. How Great Thou Art";
   }
   function getLyricsLabel(primSec) {
-    return isPrmLangCh(primSec) ? '中文歌詞 (用空白行來分開不同投影片)' : 'Lyrics (use double newlines to separate slides)';
+    return isPrmLangCh(primSec)
+      ? "中文歌詞 (用空白行來分開不同投影片)"
+      : "Lyrics (use double newlines to separate slides)";
   }
   function getLyricsHelperText(primSec) {
-    var helperText = isPrmLangCh(primSec) ? '用空白行來分開不同投影片。' : 'Use double newlines to separate slides.';
+    var helperText = isPrmLangCh(primSec)
+      ? "用空白行來分開不同投影片。"
+      : "Use double newlines to separate slides.";
     if (primSec == 2) {
-      helperText += primaryLang === 'ch' ? ' Leave blank if there are no English lyrics.' : ' 如沒有中文歌詞，請留空。';
+      helperText +=
+        primaryLang === "ch"
+          ? " Leave blank if there are no English lyrics."
+          : " 如沒有中文歌詞，請留空。";
     }
     return helperText;
   }
   function getLyricsPlaceholder(primSec) {
-    return isPrmLangCh(primSec) ?
-      '正歌第1句\n正歌第2句\n正歌第3句\n正歌第4句\n\nPre-Chorus第1句\nPre-Chorus第2句\n\n副歌第1句\n副歌第2句\n副歌第3句\n副歌第4句\n\nBridge第1句\nBridge第2句'
-      :
-      'Verse line 1\nVerse line 2\nVerse line 3\nVerse line 4\n\nPre-Chorus line 1\nPre-Chorus line 2\n\nChorus line 1\nChorus line 2\nChorus line 3\nChorus line 4\n\nBridge line 1\nBridge line 2';
+    return isPrmLangCh(primSec)
+      ? "正歌第1句\n正歌第2句\n正歌第3句\n正歌第4句\n\nPre-Chorus第1句\nPre-Chorus第2句\n\n副歌第1句\n副歌第2句\n副歌第3句\n副歌第4句\n\nBridge第1句\nBridge第2句"
+      : "Verse line 1\nVerse line 2\nVerse line 3\nVerse line 4\n\nPre-Chorus line 1\nPre-Chorus line 2\n\nChorus line 1\nChorus line 2\nChorus line 3\nChorus line 4\n\nBridge line 1\nBridge line 2";
   }
   function getConvertedLine(downloadLang, line) {
-    return isSimplified(downloadLang) ? t2sConverter(line) : (detectSimplifiedChineseInput(line) ? convertS2T(line) : line);
+    return isSimplified(downloadLang)
+      ? t2sConverter(line)
+      : detectSimplifiedChineseInput(line)
+        ? convertS2T(line)
+        : line;
   }
   function getLyricsLine(downloadLang, primSec, lyricsLine) {
-    return isPrmLangCh(primSec) ?
-      cleanChineseLine(getConvertedLine(downloadLang, lyricsLine))
-      :
-      cleanEnglishLine(lyricsLine);
+    return isPrmLangCh(primSec)
+      ? cleanChineseLine(getConvertedLine(downloadLang, lyricsLine))
+      : cleanEnglishLine(lyricsLine);
   }
   function detectSimplifiedChineseInput(input) {
     if (input === undefined) return true;
@@ -153,20 +219,23 @@ function WorshipPptGen() {
   function convertS2T(input) {
     var converted = s2tConverter(input);
     // apply corrections to certain characters that are mistakenly converted when running s2tConverter
-    return converted.replaceAll('禰','祢');
+    return converted.replaceAll("禰", "祢");
   }
 
   const generatePPT = async (lang) => {
+    var hasSongTitlePri = songTitlePri.trim();
+    var hasSongTitleSec = songTitleSec.trim();
+    var hasCredits = credits.trim();
+    var hasLyricsPri = lyricsPri.trim();
+    var hasLyricsSec = lyricsSec.trim();
 
-    var hasSongTitlePri = songTitlePri.trim()
-    var hasSongTitleSec = songTitleSec.trim()
-    var hasCredits = credits.trim()
-    var hasLyricsPri = lyricsPri.trim()
-    var hasLyricsSec = lyricsSec.trim()
-    
     var songTitleCh = isPrmLangCh(1) ? songTitlePri : songTitleSec;
     var lyricsCh = isPrmLangCh(1) ? lyricsPri : lyricsSec;
-    if (detectSimplifiedChineseInput(songTitleCh) || detectSimplifiedChineseInput(lyricsCh) || detectSimplifiedChineseInput(credits)) {
+    if (
+      detectSimplifiedChineseInput(songTitleCh) ||
+      detectSimplifiedChineseInput(lyricsCh) ||
+      detectSimplifiedChineseInput(credits)
+    ) {
       setSimpChInputWarning(true);
     } else {
       setSimpChInputWarning(false);
@@ -174,12 +243,18 @@ function WorshipPptGen() {
 
     // basic input validation
     if (!hasSongTitlePri && !hasSongTitleSec) {
-      setErrorMsg("Please enter at least either the Chinese or English song title.");
+      setErrorMsg(
+        "Please enter at least either the Chinese or English song title.",
+      );
       setErrorOpen(true);
       return;
     }
     if (!hasLyricsPri) {
-      setErrorMsg("Please enter at least the " + getLang(1) + " lyrics before generating the slides.");
+      setErrorMsg(
+        "Please enter at least the " +
+          getLang(1) +
+          " lyrics before generating the slides.",
+      );
       setErrorOpen(true);
       return;
     }
@@ -193,29 +268,32 @@ function WorshipPptGen() {
     coverSlide.color = fontColor;
     const coverTextBlocks = [];
     if (hasSongTitlePri) {
-      coverTextBlocks.push(
-        {
-          text: getSongTitleText(lang, 1),
-          options: {
-            fontSize: getCoverFontSize(1),
-            fontFace: getFontFace(1),
-            breakLine: true
-          }
-        }
-      );
+      coverTextBlocks.push({
+        text: getSongTitleText(lang, 1),
+        options: {
+          fontSize: getCoverFontSize(1),
+          fontFace: getFontFace(1),
+          breakLine: true,
+        },
+      });
     }
     if (hasSongTitleSec) {
-      coverTextBlocks.push(
-        {
-          text: getSongTitleText(lang, 2),
-          options: {
-            fontSize: getCoverFontSize(2),
-            fontFace: getFontFace(2)
-          }
-        }
-      );
+      coverTextBlocks.push({
+        text: getSongTitleText(lang, 2),
+        options: {
+          fontSize: getCoverFontSize(2),
+          fontFace: getFontFace(2),
+        },
+      });
     }
-    coverSlide.addText(coverTextBlocks, { x: 0.25, y: 0.4, w: "95%", h: 4.75, align: "center", bold: true});
+    coverSlide.addText(coverTextBlocks, {
+      x: 0.25,
+      y: 0.4,
+      w: "95%",
+      h: 4.75,
+      align: "center",
+      bold: true,
+    });
 
     // prepare to add lyrics slides
     const blocksPri = lyricsPri.trim().split(/\n\s*\n/); // blocks separated by double newlines
@@ -224,12 +302,27 @@ function WorshipPptGen() {
     const slidesToGenerate = [];
 
     for (let blockIndex = 0; blockIndex < blocksPri.length; blockIndex++) {
-      const priLines = blocksPri[blockIndex].trim().split(/\r?\n/).map((l) => l.trim());
-      const secLines = hasLyricsSec && blocksSec[blockIndex] ? blocksSec[blockIndex].trim().split(/\r?\n/).map((l) => l.trim()) : [];
-      
+      const priLines = blocksPri[blockIndex]
+        .trim()
+        .split(/\r?\n/)
+        .map((l) => l.trim());
+      const secLines =
+        hasLyricsSec && blocksSec[blockIndex]
+          ? blocksSec[blockIndex]
+              .trim()
+              .split(/\r?\n/)
+              .map((l) => l.trim())
+          : [];
+
       // Validate line count
       if (hasLyricsSec && priLines.length !== secLines.length) {
-        setErrorMsg("The number of " + getLang(1) + " and " + getLang(2) + " lyric lines must be the same.");
+        setErrorMsg(
+          "The number of " +
+            getLang(1) +
+            " and " +
+            getLang(2) +
+            " lyric lines must be the same.",
+        );
         setErrorOpen(true);
         return;
       }
@@ -239,7 +332,9 @@ function WorshipPptGen() {
         let currentIndex = 0;
         for (const size of sizes) {
           const subPri = priLines.slice(currentIndex, currentIndex + size);
-          const subSec = hasLyricsSec ? secLines.slice(currentIndex, currentIndex + size) : [];
+          const subSec = hasLyricsSec
+            ? secLines.slice(currentIndex, currentIndex + size)
+            : [];
           slidesToGenerate.push({ priLines: subPri, secLines: subSec });
           currentIndex += size;
         }
@@ -248,7 +343,11 @@ function WorshipPptGen() {
       }
     }
 
-    for (let slideIndex = 0; slideIndex < slidesToGenerate.length; slideIndex++) {
+    for (
+      let slideIndex = 0;
+      slideIndex < slidesToGenerate.length;
+      slideIndex++
+    ) {
       const { priLines, secLines } = slidesToGenerate[slideIndex];
       // add new slide and set background
       const slide = pptx.addSlide();
@@ -258,47 +357,41 @@ function WorshipPptGen() {
       // Build lyrics block
       const textBlocks = [];
       for (let i = 0; i < priLines.length; i++) {
-        const priLyricsLine = getLyricsLine(lang, 1, priLines[i] ?? '');
-        const secLyricsLine = getLyricsLine(lang, 2, secLines[i] ?? '');
+        const priLyricsLine = getLyricsLine(lang, 1, priLines[i] ?? "");
+        const secLyricsLine = getLyricsLine(lang, 2, secLines[i] ?? "");
         // add primary lyrics
-        textBlocks.push(
-          {
-            text: priLyricsLine,
-            options: {
-              align: "center",
-              fontSize: getLyricsFontSize(1),
-              bold: true,
-              fontFace: getFontFace(1),
-              breakLine: true
-            }
-          }
-        );
+        textBlocks.push({
+          text: priLyricsLine,
+          options: {
+            align: "center",
+            fontSize: getLyricsFontSize(1),
+            bold: true,
+            fontFace: getFontFace(1),
+            breakLine: true,
+          },
+        });
         if (hasLyricsSec) {
           // add secondary lyrics
-          textBlocks.push(
-            {
-              text: secLyricsLine,
-              options: {
-                align: "center",
-                fontSize: getLyricsFontSize(2),
-                fontFace: getFontFace(2),
-                breakLine: true
-              }
-            }
-          );
-        }
-        // add blank line afterwards
-        textBlocks.push(
-          {
-            text: " ",
+          textBlocks.push({
+            text: secLyricsLine,
             options: {
               align: "center",
-              fontSize: blankLineHeight,
-              fontFace: enFontFace,
-              breakLine: true
-            }
-          }
-        );
+              fontSize: getLyricsFontSize(2),
+              fontFace: getFontFace(2),
+              breakLine: true,
+            },
+          });
+        }
+        // add blank line afterwards
+        textBlocks.push({
+          text: " ",
+          options: {
+            align: "center",
+            fontSize: blankLineHeight,
+            fontFace: enFontFace,
+            breakLine: true,
+          },
+        });
       }
 
       // Add lyrics text
@@ -308,32 +401,37 @@ function WorshipPptGen() {
         w: "95%",
         h: standingMode ? 3.35 : 4.75,
         align: "center",
-        valign: "middle"
+        valign: "middle",
       });
 
       // Add footer (song name, credits)
       const footerTextBlocks = [];
       if (hasSongTitlePri) {
-        footerTextBlocks.push(
-          {
-            text: getConvertedLine(lang, songTitlePri.trim()),
-            options: {
-              fontFace: getFontFace(1),
-            }
-          }
-        );
+        footerTextBlocks.push({
+          text: getConvertedLine(lang, songTitlePri.trim()),
+          options: {
+            fontFace: getFontFace(1),
+          },
+        });
       }
       if (hasSongTitleSec) {
-        footerTextBlocks.push(
-          {
-            text: hasSongTitlePri ? " " + getConvertedLine(lang, songTitleSec.trim()) : getConvertedLine(lang, songTitleSec.trim()),
-            options: {
-              fontFace: getFontFace(2)
-            }
-          }
-        );
+        footerTextBlocks.push({
+          text: hasSongTitlePri
+            ? " " + getConvertedLine(lang, songTitleSec.trim())
+            : getConvertedLine(lang, songTitleSec.trim()),
+          options: {
+            fontFace: getFontFace(2),
+          },
+        });
       }
-      slide.addText(footerTextBlocks, { x: 0.2, y: 5.25, w: "48%", h: 0.25, align: "left", fontSize: footerFontSize});
+      slide.addText(footerTextBlocks, {
+        x: 0.2,
+        y: 5.25,
+        w: "48%",
+        h: 0.25,
+        align: "left",
+        fontSize: footerFontSize,
+      });
       if (hasCredits) {
         slide.addText(
           [
@@ -341,15 +439,26 @@ function WorshipPptGen() {
               text: getConvertedLine(lang, credits.trim()),
               options: {
                 fontFace: chFontFace,
-              }
-            }
+              },
+            },
           ],
-          { x: 5, y: 5.25, w: "48%", h: 0.25, align: "right", fontSize: footerFontSize}
+          {
+            x: 5,
+            y: 5.25,
+            w: "48%",
+            h: 0.25,
+            align: "right",
+            fontSize: footerFontSize,
+          },
         );
       }
     }
-    const isEnglishOnly = primaryLang === 'en' && !lyricsSec.trim();
-    const songFileName = hasSongTitlePri ? (hasSongTitleSec ? songTitlePri + " " + songTitleSec : songTitlePri) : songTitleSec;
+    const isEnglishOnly = primaryLang === "en" && !lyricsSec.trim();
+    const songFileName = hasSongTitlePri
+      ? hasSongTitleSec
+        ? songTitlePri + " " + songTitleSec
+        : songTitlePri
+      : songTitleSec;
     if (isEnglishOnly) {
       await pptx.writeFile(`${songFileName.trim()}.pptx`);
     } else {
@@ -403,7 +512,8 @@ function WorshipPptGen() {
         <DialogContent dividers>
           <Box display="flex" flexDirection="column" gap={2}>
             <Typography>
-              This tool is created for CPC worship leaders to quickly prepare standardized PowerPoint slides by simply providing the following:
+              This tool is created for CPC worship leaders to quickly prepare
+              standardized PowerPoint slides by simply providing the following:
               <ul>
                 <li>Song Title</li>
                 <li>Lyrics Text</li>
@@ -411,17 +521,39 @@ function WorshipPptGen() {
               </ul>
               At its current state, this tool supports the following features:
               <ul>
-                <li>Prepare bilingual lyrics slide (Chinese/English lyrics by sentence)</li>
-                <li>Apply standard formatting (font face/size, spacing, stripping out extra punctuations, etc.)</li>
-                <li>Support different backgrounds (font color will invert to white for dark backgrounds)</li>
-                <li>Generate both Traditional and Simplified Chinese slides (source input should be in Traditional Chinese)</li>
+                <li>
+                  Prepare bilingual lyrics slide (Chinese/English lyrics by
+                  sentence)
+                </li>
+                <li>
+                  Apply standard formatting (font face/size, spacing, stripping
+                  out extra punctuations, etc.)
+                </li>
+                <li>
+                  Support different backgrounds (font color will invert to white
+                  for dark backgrounds)
+                </li>
+                <li>
+                  Generate both Traditional and Simplified Chinese slides
+                  (source input should be in Traditional Chinese)
+                </li>
               </ul>
             </Typography>
             <Typography>
               NOTE:
               <ul>
-                <li>This tool is designed to generate PowerPoint slides file for <b>one song at a time;</b> once you've generate all your individual slides files, you should make the corresponding updates and assemble them into a single PowerPoint file.</li>
-                <li>This slide generator is currently only intended for generating lyrics slides, but <b>not for Bible scripture slides</b>. Please use your existing scripture slide templates to prepare them, if you need to insert them into your worship set.</li>
+                <li>
+                  This tool is designed to generate PowerPoint slides file for{" "}
+                  <b>one song at a time;</b> once you've generate all your
+                  individual slides files, you should make the corresponding
+                  updates and assemble them into a single PowerPoint file.
+                </li>
+                <li>
+                  This slide generator is currently only intended for generating
+                  lyrics slides, but <b>not for Bible scripture slides</b>.
+                  Please use your existing scripture slide templates to prepare
+                  them, if you need to insert them into your worship set.
+                </li>
               </ul>
             </Typography>
           </Box>
@@ -437,31 +569,94 @@ function WorshipPptGen() {
             <Typography>
               v1.2 (05/28/2026)
               <ul>
-                <li><b>Standing Mode:</b> Added support for standing mode which only uses the top 2/3 of the slide for lyrics (so congregants standing in front do not block lyrics). It also automatically splits lyric blocks with 4 or more lines into multiple slides of at most 3 lines.</li>
+                <li>
+                  <b>Standing Mode:</b> Added support for standing mode which
+                  only uses the top 2/3 of the slide for lyrics (so congregants
+                  standing in front do not block lyrics). It also automatically
+                  splits lyric blocks with 4 or more lines into multiple slides
+                  of at most 3 lines.
+                </li>
               </ul>
               v1.1.1 (10/18/2025)
               <ul>
-                <li><b>Bug Fix:</b> correct an issue where certain Chinese characters got incorrectly converted to other characters (i.e. 祢 → 禰) when generating Traditional Chinese slides.</li>
+                <li>
+                  <b>Bug Fix:</b> correct an issue where certain Chinese
+                  characters got incorrectly converted to other characters (i.e.
+                  祢 → 禰) when generating Traditional Chinese slides.
+                </li>
               </ul>
               v1.1 (9/12/2025)
               <ul>
-                <li><b>Add support for primary language toggle between Chinese and English:</b> you can now enter English lyrics as the primary language, where the English lyrics will first show up on the top of a lyrics line block.</li>
-                <li><b>Support Simplified Chinese input:</b> the system will automatically detect Simplified Chinese input and try to convert it back to Traditional Chinese when generating such slides, although the conversion is not 100% since multiple Traditional Chinese characters can be mapped to a single Simplified Chinese character. As a result, it's still recommended to use Traditional Chinese for inputting all Chinese characters; the system will display a small warning banner if Simplified Chinese input is detected.</li>
-                <li><b>Support adjustable lyrics font size:</b> both Chinese and English fonts can be independently adjusted to Standard, Smaller or Smallest font size to reduce line wrapping due to long sentences.</li>
-                <li><b>Development updates:</b> performed some code cleanup and refactoring.</li>
+                <li>
+                  <b>
+                    Add support for primary language toggle between Chinese and
+                    English:
+                  </b>{" "}
+                  you can now enter English lyrics as the primary language,
+                  where the English lyrics will first show up on the top of a
+                  lyrics line block.
+                </li>
+                <li>
+                  <b>Support Simplified Chinese input:</b> the system will
+                  automatically detect Simplified Chinese input and try to
+                  convert it back to Traditional Chinese when generating such
+                  slides, although the conversion is not 100% since multiple
+                  Traditional Chinese characters can be mapped to a single
+                  Simplified Chinese character. As a result, it's still
+                  recommended to use Traditional Chinese for inputting all
+                  Chinese characters; the system will display a small warning
+                  banner if Simplified Chinese input is detected.
+                </li>
+                <li>
+                  <b>Support adjustable lyrics font size:</b> both Chinese and
+                  English fonts can be independently adjusted to Standard,
+                  Smaller or Smallest font size to reduce line wrapping due to
+                  long sentences.
+                </li>
+                <li>
+                  <b>Development updates:</b> performed some code cleanup and
+                  refactoring.
+                </li>
               </ul>
               v1.0 (7/12/2025)
               <ul>
-                <li><b>Generate bilingual lyrics slide</b> (Chinese/English lyrics by sentence)</li>
-                <li><b>Apply standard formatting</b> (font face/size, spacing, stripping out extra punctuations, etc.)</li>
-                <li><b>Support different backgrounds</b> (font color will invert to white for dark backgrounds)</li>
-                <li><b>Generate both Traditional and Simplified Chinese slides</b> (source input should be in Traditional Chinese)</li>
+                <li>
+                  <b>Generate bilingual lyrics slide</b> (Chinese/English lyrics
+                  by sentence)
+                </li>
+                <li>
+                  <b>Apply standard formatting</b> (font face/size, spacing,
+                  stripping out extra punctuations, etc.)
+                </li>
+                <li>
+                  <b>Support different backgrounds</b> (font color will invert
+                  to white for dark backgrounds)
+                </li>
+                <li>
+                  <b>Generate both Traditional and Simplified Chinese slides</b>{" "}
+                  (source input should be in Traditional Chinese)
+                </li>
               </ul>
             </Typography>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setWhatsNew(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={layoutPreviewOpen} onClose={() => setLayoutPreviewOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Slide Layout Modes</DialogTitle>
+        <DialogContent dividers>
+          <Box display="flex" justifyContent="center">
+            <img
+              src={window.location.origin + "/worship-ppt-generator/img/slide_layout_modes.png"}
+              alt="Slide Layout Modes Diagram"
+              style={{ maxWidth: "100%", height: "auto", borderRadius: 4 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLayoutPreviewOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
       <Box width="100%">
@@ -489,8 +684,10 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 12 }}>
             <Typography variant="h6" fontStyle={"italic"}>
-              注意：為了避免字體轉換問題，建議使用繁體中字輸入所有中文。<br/>
-              NOTE: It's recommended to use Traditional Chinese for all Chinese-character input to avoid potential conversion problems.
+              注意：為了避免字體轉換問題，建議使用繁體中字輸入所有中文。
+              <br />
+              NOTE: It's recommended to use Traditional Chinese for all
+              Chinese-character input to avoid potential conversion problems.
             </Typography>
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
@@ -501,12 +698,14 @@ function WorshipPptGen() {
                 p: 2,
                 mt: 2,
                 height: "100%",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
               }}
             >
               <FormControl component="fieldset">
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <FormLabel component="legend">主唱語言 Primary Language</FormLabel>
+                  <FormLabel component="legend">
+                    主唱語言 Primary Language
+                  </FormLabel>
                   <Tooltip title="Determines which is the main language that appears on the top of each lyrics line group.">
                     <IconButton size="small" sx={{ p: 0.2 }}>
                       <InfoOutlinedIcon fontSize="small" />
@@ -520,14 +719,14 @@ function WorshipPptGen() {
                   onChange={handleLangChange}
                 >
                   <FormControlLabel
-                      value="ch"
-                      control={<Radio />}
-                      label="Chinese"
+                    value="ch"
+                    control={<Radio />}
+                    label="Chinese"
                   />
                   <FormControlLabel
-                      value="en"
-                      control={<Radio />}
-                      label="English"
+                    value="en"
+                    control={<Radio />}
+                    label="English"
                   />
                 </RadioGroup>
               </FormControl>
@@ -541,30 +740,54 @@ function WorshipPptGen() {
                 p: 2,
                 mt: 2,
                 height: "100%",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
               }}
             >
-              <FormControl component="fieldset">
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <FormLabel component="legend">站立模式 Standing Mode</FormLabel>
-                  <Tooltip title="Standing Mode restricts lyrics to the top 2/3 of the slide to prevent lyrics from being blocked by standing congregants. It also limits slides to a maximum of 3 lines, splitting longer lyric blocks automatically.">
-                    <IconButton size="small" sx={{ p: 0.2 }}>
-                      <InfoOutlinedIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={standingMode}
-                      onChange={(e) => setStandingMode(e.target.checked)}
-                      name="standing-mode"
-                      color="primary"
-                    />
-                  }
-                  label="Enable Standing Mode (Top 2/3 only & Max 3 lines)"
-                />
-              </FormControl>
+              <Box display="flex" alignItems="center" justifyContent="space-between" gap={2}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    <FormLabel component="legend">
+                      站立模式 Standing Mode
+                    </FormLabel>
+                    <Tooltip title="Standing Mode restricts lyrics to be laid out on the upper two-thirds of the slide to prevent lyrics from being blocked by standing congregants. It also limits slides to a maximum of 3 lines, splitting longer lyric blocks automatically.">
+                      <IconButton size="small" sx={{ p: 0.2 }}>
+                        <InfoOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={standingMode}
+                        onChange={(e) => setStandingMode(e.target.checked)}
+                        name="standing-mode"
+                        color="primary"
+                      />
+                    }
+                    label="Enable Standing Mode (use upper two-thirds only & maximum 3 lines of lyrics per slide)"
+                  />
+                </FormControl>
+                <Tooltip title="Click to view full layout modes explanation">
+                  <Box
+                    component="img"
+                    src={window.location.origin + "/worship-ppt-generator/img/slide_layout_modes.png"}
+                    alt="Slide Layout Modes"
+                    sx={{
+                      width: { xs: 80, sm: 100, md: 120 },
+                      height: "auto",
+                      borderRadius: 1,
+                      border: "1px solid #ddd",
+                      cursor: "pointer",
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                      "&:hover": {
+                        transform: "scale(1.05)",
+                        boxShadow: 3,
+                      },
+                    }}
+                    onClick={() => setLayoutPreviewOpen(true)}
+                  />
+                </Tooltip>
+              </Box>
             </Box>
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
@@ -604,9 +827,14 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 12 }}>
             <Typography variant="body1" fontStyle={"italic"}>
-              請於下面輸入歌詞。<br/>
-              NOTE: When both Chinese and English lyrics are provided, the number of lines provided for Chinese lyrics must exactly match the number of lines provided for English lyrics.<br/>
-              This is needed to make sure the English lyrics can be properly inserted under each Chinese lyrics line.
+              請於下面輸入歌詞。
+              <br />
+              NOTE: When both Chinese and English lyrics are provided, the
+              number of lines provided for Chinese lyrics must exactly match the
+              number of lines provided for English lyrics.
+              <br />
+              This is needed to make sure the English lyrics can be properly
+              inserted under each Chinese lyrics line.
             </Typography>
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
@@ -639,11 +867,17 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <InputLabel id="font-size-label">{getLang(1)} Font Size</InputLabel>
+              <InputLabel id="font-size-label">
+                {getLang(1)} Font Size
+              </InputLabel>
               <Select
                 labelId="font-size-label"
-                value={primaryLang === 'ch' ? chFontSizeScale : enFontSizeScale}
-                onChange={primaryLang === 'ch' ? handleChFontSizeScaleChange : handleEnFontSizeScaleChange}
+                value={primaryLang === "ch" ? chFontSizeScale : enFontSizeScale}
+                onChange={
+                  primaryLang === "ch"
+                    ? handleChFontSizeScaleChange
+                    : handleEnFontSizeScaleChange
+                }
               >
                 <MenuItem value="standard">Standard</MenuItem>
                 <MenuItem value="smaller">Smaller</MenuItem>
@@ -653,11 +887,17 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <InputLabel id="font-size-label">{getLang(2)} Font Size</InputLabel>
+              <InputLabel id="font-size-label">
+                {getLang(2)} Font Size
+              </InputLabel>
               <Select
                 labelId="font-size-label"
-                value={primaryLang !== 'ch' ? chFontSizeScale : enFontSizeScale}
-                onChange={primaryLang !== 'ch' ? handleChFontSizeScaleChange : handleEnFontSizeScaleChange}
+                value={primaryLang !== "ch" ? chFontSizeScale : enFontSizeScale}
+                onChange={
+                  primaryLang !== "ch"
+                    ? handleChFontSizeScaleChange
+                    : handleEnFontSizeScaleChange
+                }
               >
                 <MenuItem value="standard">Standard</MenuItem>
                 <MenuItem value="smaller">Smaller</MenuItem>
@@ -671,7 +911,12 @@ function WorshipPptGen() {
               <Select
                 value={bgImage}
                 label="Background"
-                onChange={(e) => {setBgImage(e.target.value);setFontColor(e.target.value.includes("dark") ? "FFFFFF" : "000000");}}
+                onChange={(e) => {
+                  setBgImage(e.target.value);
+                  setFontColor(
+                    e.target.value.includes("dark") ? "FFFFFF" : "000000",
+                  );
+                }}
               >
                 {backgrounds.map((bg) => (
                   <MenuItem key={bg.name} value={bg.url}>
@@ -692,13 +937,14 @@ function WorshipPptGen() {
           </Grid>
           {simpChInputWarning && (
             <Alert severity="warning" sx={{ mb: 2 }}>
-              Your input contains Simplified Chinese characters.
-              While the system will still try to perform characters conversion for you, 
-              it is recommended to use Traditional Chinese input to avoid potential conversion problems.
+              Your input contains Simplified Chinese characters. While the
+              system will still try to perform characters conversion for you, it
+              is recommended to use Traditional Chinese input to avoid potential
+              conversion problems.
             </Alert>
           )}
           <Grid item size={{ xs: 12, sm: 12 }} align="center">
-            {primaryLang === 'en' && !lyricsSec.trim() ? (
+            {primaryLang === "en" && !lyricsSec.trim() ? (
               <Button
                 variant="contained"
                 color="primary"
@@ -729,8 +975,10 @@ function WorshipPptGen() {
           </Grid>
           <Grid item size={{ xs: 12, sm: 12 }}>
             <Typography variant="body2" align="right">
-              Developed by Wah for CPC<br/>
-              Last updated: 2026-05-28<br/>
+              Developed by Wah for CPC
+              <br />
+              Last updated: 2026-05-28
+              <br />
               v1.2
             </Typography>
           </Grid>
